@@ -10,6 +10,13 @@ import {
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 
+// Reusable Components Sourced from M2 Design System
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
+
 const TYPE_FILTERS = ["All", "official", "religious", "hajj", "education"] as const;
 const TYPE_ICONS: Record<string, React.ReactNode> = {
   official:   <Megaphone size={14} />,
@@ -37,57 +44,59 @@ export default function AnnouncementsPage() {
         <header className="flex-shrink-0 flex items-center justify-between px-8 h-16 border-b"
           style={{ borderColor: "rgba(26,92,42,0.2)", background: "rgba(8,11,8,0.95)", backdropFilter: "blur(20px)" }}>
           <div className="flex items-center gap-3">
-            <Volume2 size={18} style={{ color: "#D4AF37" }} />
+            <Volume2 size={18} className="text-gold" />
             <div>
-              <h2 className="font-outfit font-bold text-sm" style={{ color: "#D4AF37", letterSpacing: "0.08em" }}>
+              <h2 className="font-outfit font-bold text-sm text-gold tracking-widest">
                 OFFICIAL ANNOUNCEMENTS & CIRCULARS
               </h2>
-              <p className="text-xs" style={{ color: "rgba(232,237,233,0.4)" }}>
+              <p className="text-xs text-foreground/40">
                 Ministry of Religious Affairs & Endowments · {formatHijriDate(hijri)}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="badge badge-gold text-xs">{announcements ? announcements.length : 0} Published</span>
-            <button
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold"
-              style={{ background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.2)", color: "#D4AF37" }}>
+            <Badge className="bg-gold/10 text-gold border-gold/20 text-xs">
+              {announcements ? announcements.length : 0} Published
+            </Badge>
+            <Button
+              size="sm"
+              variant="outline"
+              className="bg-gold/5 border-gold/25 text-gold hover:bg-gold/10 hover:border-gold/30"
+            >
               <Megaphone size={13} />
               New Announcement
-            </button>
+            </Button>
           </div>
         </header>
 
         <div className="flex-1 overflow-y-auto p-6">
           {/* Broadcast Banner — Urgent */}
           {announcements && announcements.length > 0 && (
-          <div className="glass-gold p-4 mb-6 flex items-center gap-4">
-            <div className="p-2 rounded-lg" style={{ background: "rgba(212,175,55,0.15)" }}>
-              <AlertCircle size={20} style={{ color: "#D4AF37" }} />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-0.5">
-                <span className="badge badge-gold" style={{ fontSize: "0.65rem" }}>URGENT — OFFICIAL</span>
-                <span className="text-xs" style={{ color: "rgba(212,175,55,0.6)" }}>Broadcast: WhatsApp · Radio · TV</span>
+            <Card className="glass-gold border-gold/20 bg-gold/5 p-4 mb-6 flex items-center gap-4">
+              <div className="p-2 rounded-lg bg-gold/15 flex-shrink-0">
+                <AlertCircle size={20} className="text-gold" />
               </div>
-              <p className="text-sm font-semibold" style={{ color: "#E8EDE9" }}>
-                {announcements[0].title}
-              </p>
-              <p className="text-xs mt-0.5" style={{ color: "rgba(232,237,233,0.5)" }}>
-                {announcements[0].content.slice(0, 140)}...
-              </p>
-            </div>
-            <div className="flex gap-2 flex-shrink-0">
-              <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold"
-                style={{ background: "rgba(26,92,42,0.2)", border: "1px solid rgba(26,92,42,0.3)", color: "#4ade80" }}>
-                <Share2 size={12} /> Share
-              </button>
-              <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold"
-                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(232,237,233,0.6)" }}>
-                <Download size={12} /> PDF
-              </button>
-            </div>
-          </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <Badge className="bg-gold/20 text-gold border-gold/30 text-[9px] font-bold">URGENT — OFFICIAL</Badge>
+                  <span className="text-xs text-gold/60">Broadcast: WhatsApp · Radio · TV</span>
+                </div>
+                <p className="text-sm font-semibold text-foreground">
+                  {announcements[0].title}
+                </p>
+                <p className="text-xs mt-0.5 text-foreground/50 truncate">
+                  {announcements[0].content.slice(0, 140)}...
+                </p>
+              </div>
+              <div className="flex gap-2 flex-shrink-0">
+                <Button size="sm" variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20 hover:border-emerald-500/30">
+                  <Share2 size={12} /> Share
+                </Button>
+                <Button size="sm" variant="outline" className="bg-white/5 text-foreground/60 border-white/10 hover:bg-white/10">
+                  <Download size={12} /> PDF
+                </Button>
+              </div>
+            </Card>
           )}
 
           <div className="grid grid-cols-3 gap-6">
@@ -95,38 +104,40 @@ export default function AnnouncementsPage() {
             <div className="col-span-2 space-y-4">
               {/* Filter Tabs */}
               <div className="flex items-center gap-2">
-                <Filter size={14} style={{ color: "rgba(232,237,233,0.4)" }} />
+                <Filter size={14} className="text-foreground/40" />
                 <div className="flex gap-2 flex-wrap">
                   {TYPE_FILTERS.map(f => (
-                    <button
+                    <Button
                       key={f}
                       onClick={() => setActiveFilter(f)}
-                      className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all capitalize"
-                      style={{
-                        background: activeFilter === f ? "rgba(212,175,55,0.15)" : "rgba(255,255,255,0.04)",
-                        border: activeFilter === f ? "1px solid rgba(212,175,55,0.3)" : "1px solid rgba(255,255,255,0.07)",
-                        color: activeFilter === f ? "#D4AF37" : "rgba(232,237,233,0.5)",
-                      }}>
+                      size="sm"
+                      variant="outline"
+                      className={cn(
+                        "text-xs capitalize transition-all",
+                        activeFilter === f
+                          ? "bg-gold/15 text-gold border-gold/30 hover:bg-gold/25"
+                          : "bg-white/4 text-foreground/50 border-white/7 hover:bg-white/8"
+                      )}
+                    >
                       {f === "All" ? "All Types" : f}
-                    </button>
+                    </Button>
                   ))}
                 </div>
-                <span className="ml-auto text-xs" style={{ color: "rgba(232,237,233,0.3)" }}>
+                <span className="ml-auto text-xs text-foreground/35">
                   {filtered.length} results
                 </span>
               </div>
 
               {/* Cards */}
               {filtered.map((ann) => (
-                <div
-                  key={ann.id}
-                  className="glass-card p-5 cursor-pointer"
-                  onClick={() => setExpandedId(expandedId === ann.id ? null : ann.id)}
+                <Card
+                  key={ann._id}
+                  className="glass-card border-white/5 bg-white/3 p-5 cursor-pointer hover:border-white/10 transition-all duration-300"
+                  onClick={() => setExpandedId(expandedId === ann._id ? null : ann._id)}
                 >
                   <div className="flex items-start gap-3">
                     {/* Type Icon */}
-                    <div className="p-2 rounded-lg flex-shrink-0 mt-0.5"
-                      style={{ background: "rgba(26,92,42,0.15)", border: "1px solid rgba(26,92,42,0.2)", color: "#4ade80" }}>
+                    <div className="p-2 rounded-lg flex-shrink-0 mt-0.5 bg-emerald-500/15 border border-emerald-500/20 text-emerald-400">
                       {TYPE_ICONS[ann.type] || <Volume2 size={14} />}
                     </div>
 
@@ -134,62 +145,61 @@ export default function AnnouncementsPage() {
                       {/* Badges Row */}
                       <div className="flex items-center gap-2 mb-2">
                         {ann.urgent && (
-                          <span className="badge badge-gold" style={{ fontSize: "0.62rem" }}>
-                            <AlertCircle size={9} /> URGENT
-                          </span>
+                          <Badge className="bg-gold/10 text-gold border-gold/20 text-[9px] font-bold">
+                            <AlertCircle size={9} className="mr-0.5" /> URGENT
+                          </Badge>
                         )}
-                        <span className="badge badge-mora-green capitalize" style={{ fontSize: "0.62rem" }}>
+                        <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[9px] font-bold capitalize">
                           {ann.type}
-                        </span>
-                        {ann.channels.map(ch => (
-                          <span key={ch} className="badge badge-blue" style={{ fontSize: "0.6rem" }}>{ch}</span>
+                        </Badge>
+                        {ann.channels.map((ch: any) => (
+                          <Badge key={ch} className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-[9px] font-bold">
+                            {ch}
+                          </Badge>
                         ))}
                       </div>
 
                       {/* Title */}
-                      <h3 className="font-outfit font-bold text-base leading-snug" style={{ color: "#E8EDE9" }}>
+                      <h3 className="font-outfit font-bold text-base leading-snug text-foreground">
                         {ann.title}
                       </h3>
 
                       {/* Arabic Title */}
-                      <p className="font-arabic text-sm mt-1" style={{ color: "rgba(212,175,55,0.6)", direction: "rtl", textAlign: "right" }}>
+                      <p className="font-arabic text-sm mt-1 text-gold/60" style={{ direction: "rtl", textAlign: "right" }}>
                         {ann.titleArabic}
                       </p>
 
                       {/* Somali Title */}
-                      <p className="text-xs mt-0.5 italic" style={{ color: "rgba(232,237,233,0.4)" }}>
+                      <p className="text-xs mt-0.5 italic text-foreground/40">
                         {ann.titleSomali}
                       </p>
 
                       {/* Meta */}
                       <div className="flex items-center gap-4 mt-3">
-                        <span className="flex items-center gap-1 text-xs" style={{ color: "rgba(232,237,233,0.35)" }}>
+                        <span className="flex items-center gap-1 text-xs text-foreground/35">
                           <Clock size={10} /> {ann.date}
                         </span>
-                        <span className="text-xs" style={{ color: "rgba(232,237,233,0.35)" }}>
+                        <span className="text-xs text-foreground/35">
                           {ann.author}
                         </span>
                       </div>
 
                       {/* Expanded Content */}
-                      {expandedId === ann.id && (
-                        <div className="mt-4 pt-4 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-                          <p className="text-sm leading-relaxed" style={{ color: "rgba(232,237,233,0.7)" }}>
+                      {expandedId === ann._id && (
+                        <div className="mt-4 pt-4 border-t border-white/6">
+                          <p className="text-sm leading-relaxed text-foreground/70">
                             {ann.content}
                           </p>
                           <div className="flex gap-2 mt-4">
-                            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
-                              style={{ background: "rgba(26,92,42,0.2)", border: "1px solid rgba(26,92,42,0.3)", color: "#4ade80" }}>
+                            <Button size="sm" className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30">
                               <Share2 size={12} /> Broadcast via WhatsApp
-                            </button>
-                            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
-                              style={{ background: "rgba(212,175,55,0.08)", border: "1px solid rgba(212,175,55,0.15)", color: "#D4AF37" }}>
+                            </Button>
+                            <Button size="sm" variant="outline" className="bg-gold/8 text-gold border-gold/15 hover:bg-gold/15">
                               <Download size={12} /> Download PDF
-                            </button>
-                            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
-                              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(232,237,233,0.5)" }}>
+                            </Button>
+                            <Button size="sm" variant="outline" className="bg-white/4 text-foreground/50 border-white/8 hover:bg-white/8">
                               <Globe size={12} /> Publish to Portal
-                            </button>
+                            </Button>
                           </div>
                         </div>
                       )}
@@ -198,20 +208,22 @@ export default function AnnouncementsPage() {
                     {/* Status Indicator */}
                     <div className="flex-shrink-0">
                       {ann.urgent
-                        ? <AlertCircle size={16} style={{ color: "#f59e0b" }} />
-                        : <CheckCircle size={16} style={{ color: "#22c55e" }} />
+                        ? <AlertCircle size={16} className="text-amber-500" />
+                        : <CheckCircle size={16} className="text-emerald-500" />
                       }
                     </div>
                   </div>
-                </div>
+                </Card>
               ))}
             </div>
 
             {/* Right Panel */}
             <div className="space-y-4">
               {/* Broadcast Stats */}
-              <div className="glass-card p-5">
-                <h3 className="section-title mb-4">Broadcast Channels</h3>
+              <Card className="glass-card border-white/5 bg-white/3 p-5">
+                <h3 className="section-title mb-4 font-outfit font-bold text-sm text-foreground flex items-center gap-1.5">
+                  Broadcast Channels
+                </h3>
                 {[
                   { label: "WhatsApp Groups", count: 247, pct: 94 },
                   { label: "Official Website", count: 1, pct: 100 },
@@ -221,19 +233,19 @@ export default function AnnouncementsPage() {
                 ].map(ch => (
                   <div key={ch.label} className="mb-3">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs" style={{ color: "rgba(232,237,233,0.6)" }}>{ch.label}</span>
-                      <span className="text-xs font-semibold" style={{ color: "#D4AF37" }}>{ch.pct}%</span>
+                      <span className="text-xs text-foreground/60">{ch.label}</span>
+                      <span className="text-xs font-semibold text-gold">{ch.pct}%</span>
                     </div>
-                    <div className="progress-bar">
-                      <div className="progress-fill" style={{ width: `${ch.pct}%` }} />
-                    </div>
+                    <Progress value={ch.pct} className="h-1.5 bg-white/5" />
                   </div>
                 ))}
-              </div>
+              </Card>
 
               {/* Recent Circular Types */}
-              <div className="glass-card p-5">
-                <h3 className="section-title mb-4">By Type</h3>
+              <Card className="glass-card border-white/5 bg-white/3 p-5">
+                <h3 className="section-title mb-4 font-outfit font-bold text-sm text-foreground flex items-center gap-1.5">
+                  By Type
+                </h3>
                 {[
                   { type: "Official", count: 12, color: "#D4AF37" },
                   { type: "Religious", count: 34, color: "#4ade80" },
@@ -243,27 +255,27 @@ export default function AnnouncementsPage() {
                   <div key={t.type} className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full" style={{ background: t.color }} />
-                      <span className="text-sm" style={{ color: "rgba(232,237,233,0.7)" }}>{t.type}</span>
+                      <span className="text-sm text-foreground/70">{t.type}</span>
                     </div>
                     <span className="font-outfit font-bold text-sm" style={{ color: t.color }}>{t.count}</span>
                   </div>
                 ))}
-              </div>
+              </Card>
 
               {/* Publish Announcement CTA */}
-              <div className="glass-green p-5">
-                <h3 className="font-outfit font-bold text-sm mb-2" style={{ color: "#4ade80" }}>
+              <Card className="glass-green border-emerald-500/20 bg-emerald-500/5 p-5">
+                <h3 className="font-outfit font-bold text-sm mb-2 text-emerald-400">
                   Publish New Announcement
                 </h3>
-                <p className="text-xs mb-4" style={{ color: "rgba(232,237,233,0.5)" }}>
+                <p className="text-xs mb-4 text-foreground/50">
                   Draft, approve, and broadcast to all registered channels in one workflow.
                 </p>
-                <button
-                  className="w-full py-2 rounded-lg text-sm font-bold transition-all"
-                  style={{ background: "rgba(26,92,42,0.4)", border: "1px solid rgba(26,92,42,0.5)", color: "#4ade80" }}>
+                <Button
+                  className="w-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 font-bold"
+                >
                   + New Draft
-                </button>
-              </div>
+                </Button>
+              </Card>
             </div>
           </div>
         </div>

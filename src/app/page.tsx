@@ -12,6 +12,15 @@ import {
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
+// Reusable Components Sourced from M2 Design System
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { StatusIndicator } from "@/components/ui/StatusIndicator";
+import { cn } from "@/lib/utils";
+
+
 export default function OverviewPage() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [prayerTimes, setPrayerTimes] = useState(calculatePrayerTimes());
@@ -89,19 +98,21 @@ export default function OverviewPage() {
             {(Object.keys(MORA_STATS) as Array<keyof typeof MORA_STATS>).map((key) => {
               const stat = MORA_STATS[key];
               return (
-                <div key={key} className="stat-card fade-in">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="p-2 rounded-lg" style={{ background: "rgba(212,175,55,0.08)" }}>
-                      {statIcons[key]}
+                <Card key={key} className="stat-card border-white/5 bg-white/3 hover:border-gold/15 transition-all duration-250 fade-in">
+                  <CardContent className="p-5">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="p-2 rounded-lg bg-gold/5">
+                        {statIcons[key]}
+                      </div>
+                      <Badge className="bg-gold/10 text-gold border-gold/20 font-bold text-[10px]">{stat.trend}</Badge>
                     </div>
-                    <span className="badge badge-gold">{stat.trend}</span>
-                  </div>
-                  <p className="font-outfit font-bold text-2xl" style={{ color: "#E8EDE9" }}>
-                    {stat.value.toLocaleString()}
-                  </p>
-                  <p className="text-sm font-semibold mt-0.5" style={{ color: "#D4AF37" }}>{stat.label}</p>
-                  <p className="text-xs mt-0.5" style={{ color: "rgba(232,237,233,0.4)" }}>{stat.subLabel}</p>
-                </div>
+                    <p className="font-outfit font-bold text-2xl text-foreground">
+                      {stat.value.toLocaleString()}
+                    </p>
+                    <p className="text-sm font-semibold mt-0.5 text-gold">{stat.label}</p>
+                    <p className="text-xs mt-0.5 text-muted-foreground">{stat.subLabel}</p>
+                  </CardContent>
+                </Card>
               );
             })}
           </div>
@@ -109,15 +120,15 @@ export default function OverviewPage() {
           {/* Prayer Times + Active Announcement */}
           <div className="grid grid-cols-5 gap-4">
             {/* Prayer Times — full width panel */}
-            <div className="col-span-3 glass-card p-5">
+            <Card className="col-span-3 glass-card border-white/5 bg-white/3 p-5">
               <div className="section-header">
                 <h3 className="section-title">
                   <Moon size={16} style={{ color: "#D4AF37" }} />
                   Prayer Times — Hargeisa
                 </h3>
-                <span className="badge badge-mora-green">
-                  <span className="pulse-gold">●</span> Live
-                </span>
+                <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 gap-1.5 font-bold">
+                  <span className="pulse-gold text-gold">●</span> Live
+                </Badge>
               </div>
               <div className="grid grid-cols-3 gap-3">
                 {prayers.filter(p => p.key !== "sunrise").map((prayer) => (
@@ -135,20 +146,20 @@ export default function OverviewPage() {
                       {prayer.nameSomali}
                     </p>
                     {activePrayer === prayer.key && (
-                      <span className="badge badge-gold mt-2 w-full justify-center" style={{ fontSize: "0.6rem" }}>
+                      <Badge className="mt-2 w-full justify-center bg-gold/10 text-gold border-gold/20 text-[9px] font-bold">
                         CURRENT
-                      </span>
+                      </Badge>
                     )}
                   </div>
                 ))}
               </div>
-              <p className="text-xs mt-3" style={{ color: "rgba(232,237,233,0.25)" }}>
+              <p className="text-xs mt-3 text-muted-foreground opacity-60">
                 Method: Muslim World League (MWL) · Coordinates: 9.5596°N, 44.0650°E · EAT (UTC+3)
               </p>
-            </div>
+            </Card>
 
             {/* Hijri Calendar Quick View */}
-            <div className="col-span-2 glass-card p-5">
+            <Card className="col-span-2 glass-card border-white/5 bg-white/3 p-5">
               <div className="section-header">
                 <h3 className="section-title">Islamic Date</h3>
               </div>
@@ -159,45 +170,47 @@ export default function OverviewPage() {
                 <p className="font-outfit font-bold text-4xl mt-1" style={{ color: "#E8EDE9" }}>
                   {hijri.day}
                 </p>
-                <p className="text-sm font-semibold" style={{ color: "#D4AF37" }}>
+                <p className="text-sm font-semibold text-gold">
                   {hijri.monthName} {hijri.year} AH
                 </p>
-                <p className="text-xs mt-1" style={{ color: "rgba(232,237,233,0.4)" }}>
+                <p className="text-xs mt-1 text-muted-foreground">
                   {hijri.monthNameSomali}
                 </p>
               </div>
               <div className="divider-gold my-3" />
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs" style={{ color: "rgba(232,237,233,0.5)" }}>Gregorian Date</span>
-                  <span className="text-xs font-semibold" style={{ color: "#E8EDE9" }}>
+                  <span className="text-xs text-muted-foreground">Gregorian Date</span>
+                  <span className="text-xs font-semibold text-foreground">
                     {currentTime.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" })}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs" style={{ color: "rgba(232,237,233,0.5)" }}>Moon Sighting</span>
-                  <span className="badge badge-green" style={{ fontSize: "0.65rem" }}>
+                  <span className="text-xs text-muted-foreground">Moon Sighting</span>
+                  <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[9px] gap-1 font-bold">
                     <CheckCircle size={10} /> Confirmed
-                  </span>
+                  </Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs" style={{ color: "rgba(232,237,233,0.5)" }}>Next Event</span>
-                  <span className="text-xs font-semibold" style={{ color: "#D4AF37" }}>Dhu al-Hijja 1446H</span>
+                  <span className="text-xs text-muted-foreground">Next Event</span>
+                  <span className="text-xs font-semibold text-gold">Dhu al-Hijja 1446H</span>
                 </div>
               </div>
-            </div>
+            </Card>
           </div>
 
           {/* Announcements + Regional Map */}
           <div className="grid grid-cols-5 gap-4">
             {/* Announcements */}
-            <div className="col-span-3 glass-card p-5">
+            <Card className="col-span-3 glass-card border-white/5 bg-white/3 p-5">
               <div className="section-header">
                 <h3 className="section-title">
                   <Megaphone size={15} />
                   Official Announcements
                 </h3>
-                <button className="text-xs font-semibold" style={{ color: "#D4AF37" }}>View All →</button>
+                <Button variant="link" className="text-xs font-semibold text-gold h-auto p-0 hover:no-underline">
+                  View All →
+                </Button>
               </div>
               <div className="space-y-3">
                 {announcements && announcements.slice(0, 3).map((ann: any) => (
@@ -205,28 +218,28 @@ export default function OverviewPage() {
                     <div className="flex items-start gap-3">
                       <div className="flex-shrink-0 mt-0.5">
                         {ann.urgent
-                          ? <AlertCircle size={14} style={{ color: "#f59e0b" }} />
-                          : <CheckCircle size={14} style={{ color: "#22c55e" }} />
+                          ? <AlertCircle size={14} className="text-amber-500" />
+                          : <CheckCircle size={14} className="text-emerald-500" />
                         }
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          {ann.urgent && <span className="badge badge-gold" style={{ fontSize: "0.6rem" }}>URGENT</span>}
-                          <span className="badge badge-blue" style={{ fontSize: "0.6rem" }}>{ann.type.toUpperCase()}</span>
+                          {ann.urgent && <Badge className="bg-amber-500/10 text-amber-400 border-amber-500/20 text-[9px] font-bold">URGENT</Badge>}
+                          <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-[9px] font-bold">{ann.type.toUpperCase()}</Badge>
                         </div>
-                        <p className="text-sm font-semibold leading-snug" style={{ color: "#E8EDE9" }}>{ann.title}</p>
-                        <p className="text-xs mt-1 leading-relaxed" style={{ color: "rgba(232,237,233,0.5)" }}>
+                        <p className="text-sm font-semibold leading-snug text-foreground">{ann.title}</p>
+                        <p className="text-xs mt-1 leading-relaxed text-muted-foreground">
                           {ann.content.slice(0, 110)}...
                         </p>
                         <div className="flex items-center gap-4 mt-2">
-                          <span className="text-xs flex items-center gap-1" style={{ color: "rgba(232,237,233,0.35)" }}>
+                          <span className="text-xs flex items-center gap-1 text-muted-foreground opacity-60">
                             <Clock size={10} /> {ann.date}
                           </span>
                           <div className="flex gap-1">
-                            {ann.channels.map(ch => (
-                              <span key={ch} className="badge badge-mora-green" style={{ fontSize: "0.58rem" }}>
+                            {ann.channels.map((ch: any) => (
+                              <Badge key={ch} className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[9px] font-semibold">
                                 {ch}
-                              </span>
+                              </Badge>
                             ))}
                           </div>
                         </div>
@@ -235,10 +248,10 @@ export default function OverviewPage() {
                   </div>
                 ))}
               </div>
-            </div>
+            </Card>
 
             {/* Regional Stats */}
-            <div className="col-span-2 glass-card p-5">
+            <Card className="col-span-2 glass-card border-white/5 bg-white/3 p-5">
               <div className="section-header">
                 <h3 className="section-title">
                   <Globe size={15} />
@@ -249,15 +262,10 @@ export default function OverviewPage() {
                 {REGIONS.slice(0, 6).map((region) => (
                   <div key={region.name}>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-semibold" style={{ color: "#E8EDE9" }}>{region.name}</span>
-                      <span className="text-xs" style={{ color: "#D4AF37" }}>{region.mosques} mosques</span>
+                      <span className="text-xs font-semibold text-foreground">{region.name}</span>
+                      <span className="text-xs text-gold font-semibold">{region.mosques} mosques</span>
                     </div>
-                    <div className="progress-bar">
-                      <div
-                        className="progress-fill"
-                        style={{ width: `${(region.mosques / 624) * 100}%` }}
-                      />
-                    </div>
+                    <Progress value={(region.mosques / 624) * 100} className="h-1 bg-white/5" />
                   </div>
                 ))}
               </div>
@@ -270,64 +278,73 @@ export default function OverviewPage() {
                 </h3>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <div className="glass-card p-3" style={{ borderRadius: "8px" }}>
-                  <p className="font-outfit font-bold text-xl" style={{ color: "#D4AF37" }}>
+                <div className="glass-card bg-white/2 border border-white/5 p-3 rounded-lg">
+                  <p className="font-outfit font-bold text-xl text-gold">
                     {HAJJ_STATS.approved.toLocaleString()}
                   </p>
-                  <p className="text-xs" style={{ color: "rgba(232,237,233,0.4)" }}>Approved</p>
+                  <p className="text-xs text-muted-foreground">Approved</p>
                 </div>
-                <div className="glass-card p-3" style={{ borderRadius: "8px" }}>
-                  <p className="font-outfit font-bold text-xl" style={{ color: "#4ade80" }}>
+                <div className="glass-card bg-white/2 border border-white/5 p-3 rounded-lg">
+                  <p className="font-outfit font-bold text-xl text-emerald-400">
                     {HAJJ_STATS.utilizationPct}%
                   </p>
-                  <p className="text-xs" style={{ color: "rgba(232,237,233,0.4)" }}>Quota Used</p>
+                  <p className="text-xs text-muted-foreground">Quota Used</p>
                 </div>
               </div>
-              <div className="progress-bar mt-3">
-                <div className="progress-fill" style={{ width: `${HAJJ_STATS.utilizationPct}%` }} />
-              </div>
-              <p className="text-xs mt-1 text-right" style={{ color: "rgba(232,237,233,0.35)" }}>
+              <Progress value={HAJJ_STATS.utilizationPct} className="h-1 bg-white/5 mt-3" />
+              <p className="text-xs mt-1 text-right text-muted-foreground opacity-60">
                 {HAJJ_STATS.pending} applications pending review
               </p>
-            </div>
+            </Card>
           </div>
 
           {/* Bottom Row — Recent Mosques + System Status */}
           <div className="grid grid-cols-5 gap-4">
             {/* Mosques */}
-            <div className="col-span-3 glass-card p-5">
+            <Card className="col-span-3 glass-card border-white/5 bg-white/3 p-5">
               <div className="section-header">
                 <h3 className="section-title">
                   <Building2 size={15} />
                   Mosque Registry — Recent
                 </h3>
-                <button className="text-xs font-semibold" style={{ color: "#D4AF37" }}>Full Registry →</button>
+                <Button variant="link" className="text-xs font-semibold text-gold h-auto p-0 hover:no-underline">
+                  Full Registry →
+                </Button>
               </div>
               <div className="space-y-2">
                 {mosques && mosques.slice(0, 5).map((mosque: any) => (
                   <div key={mosque._id} className="mosque-card flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "rgba(26,92,42,0.2)" }}>
-                      <Building2 size={14} style={{ color: "#4ade80" }} />
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-emerald-950/20">
+                      <Building2 size={14} className="text-emerald-400" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold truncate" style={{ color: "#E8EDE9" }}>{mosque.name}</p>
-                      <p className="text-xs" style={{ color: "rgba(232,237,233,0.4)" }}>
+                      <p className="text-sm font-semibold truncate text-foreground">{mosque.name}</p>
+                      <p className="text-xs text-muted-foreground">
                         {mosque.region} · {mosque.district} · Cap: {mosque.capacity.toLocaleString()}
                       </p>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      {mosque.waqf && <span className="badge badge-gold" style={{ fontSize: "0.6rem" }}>WAQF</span>}
-                      <span className={`badge ${mosque.status === "Operational" ? "badge-green" : mosque.status === "Renovation" ? "badge-blue" : "badge-red"}`} style={{ fontSize: "0.6rem" }}>
+                      {mosque.waqf && <Badge className="bg-gold/10 text-gold border-gold/20 text-[9px] font-bold">WAQF</Badge>}
+                      <Badge 
+                        className={cn(
+                          "text-[9px] font-semibold",
+                          mosque.status === "Operational" 
+                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" 
+                            : mosque.status === "Renovation" 
+                            ? "bg-blue-500/10 text-blue-400 border-blue-500/20" 
+                            : "bg-red-500/10 text-red-400 border-red-500/20"
+                        )}
+                      >
                         {mosque.status}
-                      </span>
+                      </Badge>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
+            </Card>
 
             {/* System + Quick Actions */}
-            <div className="col-span-2 glass-card p-5">
+            <Card className="col-span-2 glass-card border-white/5 bg-white/3 p-5">
               <div className="section-header">
                 <h3 className="section-title">
                   <BarChart3 size={15} />
@@ -336,19 +353,16 @@ export default function OverviewPage() {
               </div>
               <div className="space-y-3">
                 {[
-                  { label: "Prayer Times API", status: "Live", ok: true },
-                  { label: "Hijri Calendar Engine", status: "Active", ok: true },
-                  { label: "WhatsApp Broadcast", status: "Connected", ok: true },
-                  { label: "Waqf Registry", status: "Database Ready", ok: true },
-                  { label: "Moon Sighting System", status: "Monitoring", ok: true },
-                  { label: "Publications Archive", status: "Online", ok: true },
+                  { label: "Prayer Times API", status: "active" as const },
+                  { label: "Hijri Calendar Engine", status: "active" as const },
+                  { label: "WhatsApp Broadcast", status: "active" as const },
+                  { label: "Waqf Registry", status: "active" as const },
+                  { label: "Moon Sighting System", status: "processing" as const },
+                  { label: "Publications Archive", status: "active" as const },
                 ].map((item) => (
                   <div key={item.label} className="flex items-center justify-between">
-                    <span className="text-xs" style={{ color: "rgba(232,237,233,0.6)" }}>{item.label}</span>
-                    <span className="badge badge-green" style={{ fontSize: "0.6rem" }}>
-                      <span className="pulse-gold" style={{ color: "#22c55e" }}>●</span>
-                      {item.status}
-                    </span>
+                    <span className="text-xs text-muted-foreground">{item.label}</span>
+                    <StatusIndicator status={item.status} />
                   </div>
                 ))}
               </div>
@@ -357,28 +371,24 @@ export default function OverviewPage() {
 
               {/* Quick Actions */}
               <div className="space-y-2">
-                <p className="text-xs font-bold" style={{ color: "rgba(212,175,55,0.6)", letterSpacing: "0.08em" }}>QUICK ACTIONS</p>
+                <p className="text-xs font-bold text-gold/60 tracking-wider">QUICK ACTIONS</p>
                 {[
                   { label: "Publish Announcement", icon: <Volume2 size={13} /> },
                   { label: "Update Prayer Times", icon: <Moon size={13} /> },
                   { label: "Register New Mosque", icon: <Building2 size={13} /> },
                 ].map((action) => (
-                  <button
+                  <Button
                     key={action.label}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-left transition-all"
-                    style={{
-                      background: "rgba(212,175,55,0.06)",
-                      border: "1px solid rgba(212,175,55,0.12)",
-                      color: "#D4AF37",
-                    }}
+                    variant="outline"
+                    className="w-full justify-start text-xs font-semibold text-gold bg-gold/5 border-gold/12 hover:bg-gold/10 hover:border-gold/20"
                   >
                     {action.icon}
                     {action.label}
-                    <span className="ml-auto" style={{ color: "rgba(212,175,55,0.4)" }}>→</span>
-                  </button>
+                    <span className="ml-auto opacity-40">→</span>
+                  </Button>
                 ))}
               </div>
-            </div>
+            </Card>
           </div>
 
           {/* Footer */}
