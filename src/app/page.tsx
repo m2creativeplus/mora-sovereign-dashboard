@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import { calculatePrayerTimes, getPrayerEntries, getCurrentPrayer } from "@/lib/prayer-times";
-import { getCurrentHijriDate, formatHijriDate, formatHijriDateArabic } from "@/lib/hijri";
+import { getCurrentHijriDate, formatHijriDate, formatHijriDateArabic, gregorianToHijri } from "@/lib/hijri";
 import { MORA_STATS, REGIONS, HAJJ_STATS } from "@/lib/data";
 import {
   Building2, MapPin, Users, Plane, Volume2, Moon, BarChart3,
-  TrendingUp, AlertCircle, CheckCircle, Clock, Megaphone, Globe
+  TrendingUp, AlertCircle, CheckCircle, Clock, Megaphone, Globe,
+  ChevronLeft, ChevronRight, CalendarDays, Undo2
 } from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
@@ -22,30 +23,126 @@ import { cn } from "@/lib/utils";
 import SomalilandEmblem from "@/components/SomalilandEmblem";
 import SomalilandFlag from "@/components/SomalilandFlag";
 import { PulsingAtoms } from "@/components/ui/PulsingAtoms";
+import QiblaCompass from "@/components/QiblaCompass";
 
 
 export default function OverviewPage() {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [prayerTimes, setPrayerTimes] = useState(calculatePrayerTimes());
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [prayerTimes, setPrayerTimes] = useState(calculatePrayerTimes(selectedDate));
   const [activePrayer, setActivePrayer] = useState<string>("fajr");
+
+  // Adhan notification toggles state
+  const [adhanAlerts, setAdhanAlerts] = useState<Record<string, boolean>>({});
+  const [lastNotified, setLastNotified] = useState<string>("");
 
   const announcements = useQuery(api.announcements.getAll);
   const mosques = useQuery(api.mosques.getAll);
 
   useEffect(() => {
+    // Load enabled adhan alarms from localStorage
+    const saved = localStorage.getItem("adhanAlerts");
+    if (saved) {
+      try {
+        setAdhanAlerts(JSON.parse(saved));
+      } catch (e) {
+        console.error("Failed to parse adhan alerts:", e);
+      }
+    }
+  }, []);
+
+  const toggleAdhan = (key: string) => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      if (Notification.permission === "default") {
+        Notification.requestPermission();
+      }
+    }
+    const updated = { ...adhanAlerts, [key]: !adhanAlerts[key] };
+    setAdhanAlerts(updated);
+    localStorage.setItem("adhanAlerts", JSON.stringify(updated));
+  };
+
+  useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date();
       setCurrentTime(now);
-      const times = calculatePrayerTimes(now);
-      setPrayerTimes(times);
-      setActivePrayer(getCurrentPrayer(times));
-    }, 30000);
-    setActivePrayer(getCurrentPrayer(prayerTimes));
-    return () => clearInterval(timer);
-  }, []);
+      
+      // If selectedDate is today, keep updating the prayer schedule live
+      const isSelectedToday = selectedDate.toDateString() === now.toDateString();
+      if (isSelectedToday) {
+        const times = calculatePrayerTimes(now);
+        setPrayerTimes(times);
+        setActivePrayer(getCurrentPrayer(times));
+      }
 
-  const hijri = getCurrentHijriDate();
-  const prayers = getPrayerEntries(currentTime);
+      // Check for Adhan notification triggers on the active live prayer times
+      const liveTimes = calculatePrayerTimes(now);
+      const activePr = getCurrentPrayer(liveTimes);
+      const currentPrayerTime = liveTimes[activePr as keyof typeof liveTimes];
+      
+      if (currentPrayerTime) {
+        const [timePart, period] = currentPrayerTime.split(" ");
+        const [hStr, mStr] = timePart.split(":");
+        let h = Number(hStr);
+        let m = Number(mStr);
+        if (period === "PM" && h !== 12) h += 12;
+        if (period === "AM" && h === 12) h = 0;
+
+        const curH = now.getHours();
+        const curM = now.getMinutes();
+
+        // If hours/minutes match exactly and we haven't popped a notification during this minute block
+        const notifyKey = `${now.toDateString()}:${activePr}`;
+        if (curH === h && curM === m && adhanAlerts[activePr] && lastNotified !== notifyKey) {
+          if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+            const prayerName = activePr.charAt(0).toUpperCase() + activePr.slice(1);
+            new Notification(`MORA Adhan Alert: ${prayerName}`, {
+              body: `It is time for the ${prayerName} prayer in Hargeisa. (${currentPrayerTime})`,
+              icon: "/favicon.ico",
+              tag: activePr
+            });
+            setLastNotified(notifyKey);
+          }
+        }
+      }
+    }, 10000); // Poll every 10 seconds to catch the exact minute match
+
+    const isSelectedToday = selectedDate.toDateString() === new Date().toDateString();
+    if (isSelectedToday) {
+      setActivePrayer(getCurrentPrayer(prayerTimes));
+    } else {
+      setActivePrayer(""); // Clear current highlight for navigated dates
+    }
+    
+    return () => clearInterval(timer);
+  }, [selectedDate, adhanAlerts, lastNotified, prayerTimes]);
+
+  const navigateDate = (days: number) => {
+    const nextDate = new Date(selectedDate);
+    nextDate.setDate(selectedDate.getDate() + days);
+    setSelectedDate(nextDate);
+    
+    const times = calculatePrayerTimes(nextDate);
+    setPrayerTimes(times);
+    
+    const isToday = nextDate.toDateString() === new Date().toDateString();
+    if (isToday) {
+      setActivePrayer(getCurrentPrayer(times));
+    } else {
+      setActivePrayer("");
+    }
+  };
+
+  const resetToToday = () => {
+    const today = new Date();
+    setSelectedDate(today);
+    const times = calculatePrayerTimes(today);
+    setPrayerTimes(times);
+    setActivePrayer(getCurrentPrayer(times));
+  };
+
+  const hijri = gregorianToHijri(selectedDate);
+  const prayers = getPrayerEntries(selectedDate);
 
   const statIcons = {
     mosques: <Building2 size={22} style={{ color: "#D4AF37" }} />,
@@ -137,77 +234,149 @@ export default function OverviewPage() {
                   <Moon size={16} style={{ color: "#D4AF37" }} />
                   Prayer Times — Hargeisa
                 </h3>
-                <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 gap-1.5 font-bold">
-                  <span className="pulse-gold text-gold">●</span> Live
+                <Badge className={cn(
+                  "border font-bold gap-1.5",
+                  selectedDate.toDateString() === new Date().toDateString() 
+                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" 
+                    : "bg-zinc-800 text-zinc-400 border-white/10"
+                )}>
+                  <span className={cn(
+                    "text-xs",
+                    selectedDate.toDateString() === new Date().toDateString() ? "pulse-gold text-gold" : "text-zinc-500"
+                  )}>●</span> {selectedDate.toDateString() === new Date().toDateString() ? "Live" : "Scheduled"}
                 </Badge>
               </div>
               <div className="grid grid-cols-3 gap-3">
-                {prayers.filter(p => p.key !== "sunrise").map((prayer) => (
-                  <div
-                    key={prayer.key}
-                    className={`prayer-card ${activePrayer === prayer.key ? "active-prayer" : ""}`}
-                  >
-                    <p className="font-arabic text-sm font-semibold" style={{ color: activePrayer === prayer.key ? "#D4AF37" : "rgba(232,237,233,0.6)", direction: "rtl", marginBottom: "4px" }}>
-                      {prayer.nameArabic}
-                    </p>
-                    <p className="font-outfit font-bold text-lg" style={{ color: activePrayer === prayer.key ? "#D4AF37" : "#E8EDE9" }}>
-                      {prayer.time}
-                    </p>
-                    <p className="text-xs mt-1" style={{ color: "rgba(232,237,233,0.4)" }}>
-                      {prayer.nameSomali}
-                    </p>
-                    {activePrayer === prayer.key && (
-                      <Badge className="mt-2 w-full justify-center bg-gold/10 text-gold border-gold/20 text-[9px] font-bold">
-                        CURRENT
-                      </Badge>
-                    )}
-                  </div>
-                ))}
+                {prayers.filter(p => p.key !== "sunrise").map((prayer) => {
+                  const isAdhanEnabled = adhanAlerts[prayer.key] || false;
+                  return (
+                    <div
+                      key={prayer.key}
+                      className={`prayer-card relative ${activePrayer === prayer.key ? "active-prayer" : ""}`}
+                    >
+                      {/* Adhan Toggle Bell */}
+                      <button
+                        onClick={() => toggleAdhan(prayer.key)}
+                        className={`absolute top-2.5 right-2.5 p-1 rounded-full border transition-all ${
+                          isAdhanEnabled
+                            ? "bg-gold/10 border-gold/30 text-gold shadow-md"
+                            : "bg-white/2 border-white/5 text-zinc-500 hover:text-zinc-300"
+                        }`}
+                        title={isAdhanEnabled ? "Disable Adhan Browser Notification" : "Enable Adhan Browser Notification"}
+                      >
+                        <Volume2 size={11} className={isAdhanEnabled ? "animate-pulse" : ""} />
+                      </button>
+
+                      <p className="font-arabic text-sm font-semibold" style={{ color: activePrayer === prayer.key ? "#D4AF37" : "rgba(232,237,233,0.6)", direction: "rtl", marginBottom: "4px" }}>
+                        {prayer.nameArabic}
+                      </p>
+                      <p className="font-outfit font-bold text-lg" style={{ color: activePrayer === prayer.key ? "#D4AF37" : "#E8EDE9" }}>
+                        {prayer.time}
+                      </p>
+                      <p className="text-xs mt-1" style={{ color: "rgba(232,237,233,0.4)" }}>
+                        {prayer.nameSomali}
+                      </p>
+                      {activePrayer === prayer.key && (
+                        <Badge className="mt-2 w-full justify-center bg-gold/10 text-gold border-gold/20 text-[9px] font-bold">
+                          CURRENT
+                        </Badge>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
               <p className="text-xs mt-3 text-muted-foreground opacity-60">
                 Method: Muslim World League (MWL) · Coordinates: 9.5596°N, 44.0650°E · EAT (UTC+3)
               </p>
             </Card>
 
-            {/* Hijri Calendar Quick View */}
-            <Card className="col-span-2 glass-card border-white/5 bg-white/3 p-5">
-              <div className="section-header">
-                <h3 className="section-title">Islamic Date</h3>
-              </div>
-              <div className="text-center mb-4">
-                <p className="font-arabic text-3xl font-bold" style={{ color: "#D4AF37", direction: "rtl" }}>
-                  {hijri.monthNameArabic}
-                </p>
-                <p className="font-outfit font-bold text-4xl mt-1" style={{ color: "#E8EDE9" }}>
-                  {hijri.day}
-                </p>
-                <p className="text-sm font-semibold text-gold">
-                  {hijri.monthName} {hijri.year} AH
-                </p>
-                <p className="text-xs mt-1 text-muted-foreground">
-                  {hijri.monthNameSomali}
-                </p>
-              </div>
-              <div className="divider-gold my-3" />
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">Gregorian Date</span>
-                  <span className="text-xs font-semibold text-foreground">
-                    {currentTime.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" })}
-                  </span>
+            {/* Interactive Date Navigator & Hijri Display */}
+            <Card className="col-span-1 glass-card border-white/5 bg-white/3 p-5 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-3 border-b border-white/5 pb-2">
+                  <h3 className="section-title text-xs font-bold text-foreground flex items-center gap-1.5">
+                    <CalendarDays className="w-3.5 h-3.5 text-gold" />
+                    Date Navigator
+                  </h3>
+                  {selectedDate.toDateString() !== new Date().toDateString() && (
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={resetToToday}
+                      className="h-5 px-1.5 text-[9px] font-bold text-gold bg-transparent border-white/10 hover:border-gold/30"
+                    >
+                      <Undo2 className="w-2.5 h-2.5 mr-0.5" /> TODAY
+                    </Button>
+                  )}
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">Moon Sighting</span>
-                  <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[9px] gap-1 font-bold">
-                    <CheckCircle size={10} /> Confirmed
+
+                {/* Gregorian Navigator Controls */}
+                <div className="flex items-center justify-between bg-zinc-950/60 border border-white/5 rounded-lg p-2.5 mb-3.5">
+                  <Button 
+                    onClick={() => navigateDate(-1)} 
+                    size="icon" 
+                    variant="outline" 
+                    className="w-7 h-7 bg-white/3 border-white/6 hover:bg-white/6 text-gold"
+                  >
+                    <ChevronLeft size={14} />
+                  </Button>
+                  
+                  <div className="text-center">
+                    <p className="text-xs font-bold text-white leading-none">
+                      {selectedDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+                    </p>
+                    <p className="text-[10px] text-zinc-500 mt-1 font-mono">
+                      {selectedDate.getFullYear()} Gregorian
+                    </p>
+                  </div>
+
+                  <Button 
+                    onClick={() => navigateDate(1)} 
+                    size="icon" 
+                    variant="outline" 
+                    className="w-7 h-7 bg-white/3 border-white/6 hover:bg-white/6 text-gold"
+                  >
+                    <ChevronRight size={14} />
+                  </Button>
+                </div>
+
+                {/* Calculated Hijri Display Directly Underneath */}
+                <div className="text-center p-3 bg-gold/5 border border-gold/12 rounded-lg">
+                  <p className="font-arabic text-2xl font-bold text-gold" style={{ direction: "rtl" }}>
+                    {hijri.monthNameArabic}
+                  </p>
+                  <p className="font-outfit font-bold text-3xl text-white mt-1">
+                    {hijri.day}
+                  </p>
+                  <p className="text-xs font-bold text-gold uppercase tracking-wider mt-1">
+                    {hijri.monthName} {hijri.year} AH
+                  </p>
+                  <p className="text-[10px] text-zinc-500 mt-0.5 font-semibold">
+                    {hijri.monthNameSomali}
+                  </p>
+                </div>
+              </div>
+
+              <div className="divider-gold my-3" />
+
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-zinc-500 font-semibold">Moon Sighting</span>
+                  <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[9px] gap-1 font-bold h-4">
+                    <CheckCircle size={9} /> Confirmed
                   </Badge>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">Next Event</span>
-                  <span className="text-xs font-semibold text-gold">Dhu al-Hijja 1446H</span>
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-zinc-500 font-semibold">Regional Calib.</span>
+                  <span className="text-white font-mono font-bold">Hargeisa SL</span>
                 </div>
               </div>
             </Card>
+
+            {/* Qibla Direction Compass */}
+            <div className="col-span-1">
+              <QiblaCompass />
+            </div>
           </div>
 
           {/* Announcements + Regional Map */}
