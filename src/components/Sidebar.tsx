@@ -24,23 +24,23 @@ interface NavItem {
   icon: React.ReactNode;
   href: string;
   section?: string;
+  showSection?: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Overview",      labelArabic: "نظرة عامة",    icon: <LayoutDashboard size={17} />, href: "/",            section: "CORE" },
+  { label: "Overview",      labelArabic: "نظرة عامة",    icon: <LayoutDashboard size={17} />, href: "/",            section: "CORE", showSection: true },
   { label: "Hijri Calendar",labelArabic: "التقويم الهجري", icon: <Moon size={17} />,           href: "/calendar",    section: "CORE" },
   { label: "Announcements", labelArabic: "الإعلانات",      icon: <Volume2 size={17} />,        href: "/announcements" },
   { label: "Publications",  labelArabic: "المنشورات",      icon: <FileText size={17} />,       href: "/publications" },
-  { label: "Mosque Registry",labelArabic: "سجل المساجد",  icon: <Building2 size={17} />,      href: "/mosques",     section: "REGISTRY" },
+  { label: "Mosque Registry",labelArabic: "سجل المساجد",  icon: <Building2 size={17} />,      href: "/mosques",     section: "REGISTRY", showSection: true },
   { label: "Waqf Assets",   labelArabic: "الأوقاف",       icon: <MapPin size={17} />,         href: "/waqf" },
   { label: "Hajj & Umrah",  labelArabic: "الحج والعمرة",  icon: <Plane size={17} />,          href: "/hajj" },
-  { label: "Education",     labelArabic: "التعليم",        icon: <GraduationCap size={17} />,  href: "/education",   section: "SERVICES" },
+  { label: "Education",     labelArabic: "التعليم",        icon: <GraduationCap size={17} />,  href: "/education",   section: "SERVICES", showSection: true },
   { label: "Knowledge Hub", labelArabic: "مركز المعرفة",   icon: <BookOpen size={17} />,       href: "/knowledge" },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
-  let lastSection = "";
 
   return (
     <aside className="sidebar flex flex-col h-screen sticky top-0 flex-shrink-0" style={{ width: "var(--sidebar-width)" }}>
@@ -73,13 +73,11 @@ export default function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
         {NAV_ITEMS.map((item) => {
-          const showSection = item.section && item.section !== lastSection;
-          if (item.section) lastSection = item.section;
           const isActive = pathname === item.href;
 
           return (
             <div key={item.href}>
-              {showSection && (
+              {item.showSection && (
                 <p className="nav-section-label" style={{ marginTop: "12px", marginBottom: "4px" }}>
                   {item.section}
                 </p>

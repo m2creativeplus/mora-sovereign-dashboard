@@ -1,17 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Compass, Sparkles, Navigation, RotateCw, AlertTriangle, ShieldCheck } from "lucide-react";
+import { Compass, Sparkles, RotateCw, ShieldCheck } from "lucide-react";
 import { Typography } from "@/components/ui/Typography";
 
 export default function QiblaCompass() {
   const [heading, setHeading] = useState<number>(0); // Device heading (0 = North, clockwise)
-  const [hasSensor, setHasSensor] = useState<boolean>(false);
-  const [sensorStatus, setSensorStatus] = useState<string>("checking");
   const [isSimulating, setIsSimulating] = useState<boolean>(true); // Default simulator to active on desktop
   const [simulateAngle, setSimulateAngle] = useState<number>(180); // Manual slider fallback angle
 
@@ -25,29 +23,30 @@ export default function QiblaCompass() {
   // Qibla is aligned if needle is pointing almost straight up (within 3 degrees of 0° / 360°)
   const isAligned = Math.min(Math.abs(needleAngle), Math.abs(needleAngle - 360)) <= 4;
 
+  const sensorDetectedRef = useRef(false);
+
   useEffect(() => {
     // Check if device orientation is supported
     if (typeof window !== "undefined" && "DeviceOrientationEvent" in window) {
       const handleOrientation = (e: DeviceOrientationEvent) => {
         let currentHeading = 0;
+        let sensorDetected = false;
         
         // iOS Webkit Compass Heading support
         if ("webkitCompassHeading" in e) {
           currentHeading = e.webkitCompassHeading as number;
-          setHasSensor(true);
-          setIsSimulating(false);
-          setSensorStatus("connected");
+          sensorDetected = true;
         } 
         // Standard absolute orientation
         else if (e.alpha !== null) {
           // alpha is 0 to 360 counter-clockwise, convert to clockwise heading
           currentHeading = (360 - e.alpha) % 360;
-          setHasSensor(true);
-          setIsSimulating(false);
-          setSensorStatus("connected");
+          sensorDetected = true;
         }
 
-        if (currentHeading !== undefined) {
+        if (sensorDetected) {
+          sensorDetectedRef.current = true;
+          setIsSimulating(false);
           setHeading(Math.round(currentHeading));
         }
       };
@@ -55,43 +54,39 @@ export default function QiblaCompass() {
       window.addEventListener("deviceorientation", handleOrientation, true);
       
       // Bounded check for active sensor data
-      setTimeout(() => {
-        if (heading === 0 && !hasSensor) {
-          setSensorStatus("simulation");
+      const timer = setTimeout(() => {
+        if (!sensorDetectedRef.current) {
+          // Keep simulating if no active sensor updates arrive
+          setIsSimulating(true);
         }
       }, 1000);
 
       return () => {
         window.removeEventListener("deviceorientation", handleOrientation, true);
+        clearTimeout(timer);
       };
-    } else {
-      setSensorStatus("unsupported");
     }
-  }, [heading, hasSensor]);
+  }, []);
 
   // Request iOS permission explicitly
   const requestIOSPermission = async () => {
+    const DeviceOrientationEventWithPerm = DeviceOrientationEvent as unknown as {
+      requestPermission?: () => Promise<string>;
+    };
+
     if (
       typeof window !== "undefined" &&
       typeof DeviceOrientationEvent !== "undefined" &&
-      // @ts-ignore
-      typeof DeviceOrientationEvent.requestPermission === "function"
+      typeof DeviceOrientationEventWithPerm.requestPermission === "function"
     ) {
       try {
-        // @ts-ignore
-        const permissionState = await DeviceOrientationEvent.requestPermission();
+        const permissionState = await DeviceOrientationEventWithPerm.requestPermission();
         if (permissionState === "granted") {
-          setSensorStatus("authorized");
           setIsSimulating(false);
-        } else {
-          setSensorStatus("denied");
         }
       } catch (error) {
         console.error("Sensor authorization error:", error);
-        setSensorStatus("error");
       }
-    } else {
-      setSensorStatus("unsupported");
     }
   };
 

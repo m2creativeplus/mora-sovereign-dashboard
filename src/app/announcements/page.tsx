@@ -25,15 +25,28 @@ const TYPE_ICONS: Record<string, React.ReactNode> = {
   education:  <GraduationCap size={14} />,
 };
 
+interface Announcement {
+  _id: string;
+  urgent: boolean;
+  type: string;
+  title: string;
+  titleArabic: string;
+  titleSomali: string;
+  content: string;
+  date: string;
+  author: string;
+  channels: string[];
+}
+
 export default function AnnouncementsPage() {
   const [activeFilter, setActiveFilter] = useState<string>("All");
-  const [expandedId, setExpandedId] = useState<any | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const hijri = getCurrentHijriDate();
   const announcements = useQuery(api.announcements.getAll);
 
   const filtered = announcements ? (activeFilter === "All"
     ? announcements
-    : announcements.filter((a: any) => a.type === activeFilter)) : [];
+    : announcements.filter((a: Announcement) => a.type === activeFilter)) : [];
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "var(--background)" }}>
@@ -152,7 +165,7 @@ export default function AnnouncementsPage() {
                         <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[9px] font-bold capitalize">
                           {ann.type}
                         </Badge>
-                        {ann.channels.map((ch: any) => (
+                        {ann.channels.map((ch: string) => (
                           <Badge key={ch} className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-[9px] font-bold">
                             {ch}
                           </Badge>

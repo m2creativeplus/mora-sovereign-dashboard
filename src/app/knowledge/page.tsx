@@ -10,8 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/Typography";
 import { 
-  BookOpen, Search, ShieldCheck, Download, Languages, 
-  Sparkles, CheckCircle2, AlertCircle, FileText, Send, 
+  BookOpen, Search, Download, Languages, 
+  Sparkles, CheckCircle2, Send, 
   HelpCircle, Scale
 } from "lucide-react";
 
@@ -324,7 +324,7 @@ export default function KnowledgePage() {
                   </h3>
                 </div>
                 <Typography variant="small" className="text-zinc-400 leading-relaxed mb-4">
-                  Interact with the Ministry's retrieval-augmented neural search indexing database. Ask questions regarding Zakat rates, Waqf leases, or moon-sighting protocols.
+                  Interact with the Ministry&apos;s retrieval-augmented neural search indexing database. Ask questions regarding Zakat rates, Waqf leases, or moon-sighting protocols.
                 </Typography>
 
                 <form onSubmit={handleRagSearch} className="space-y-3">
@@ -410,7 +410,7 @@ export default function KnowledgePage() {
                     ) : (
                       <>
                         <p className="text-[10px] text-zinc-500 font-semibold italic truncate">
-                          "{searchedText}"
+                          &ldquo;{searchedText}&rdquo;
                         </p>
                         <p className={`text-[11px] leading-relaxed text-zinc-200 pt-1 ${selectedLanguage === "Arabic" ? "text-right font-arabic" : ""}`} dir={selectedLanguage === "Arabic" ? "rtl" : "ltr"}>
                           {ragResult}

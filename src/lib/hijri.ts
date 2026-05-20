@@ -12,6 +12,7 @@ export interface HijriDate {
   monthName: string;
   monthNameArabic: string;
   monthNameSomali: string;
+  isSacred?: boolean;
 }
 
 export interface IslamicEvent {
@@ -23,19 +24,19 @@ export interface IslamicEvent {
   type: "major" | "minor" | "observance";
 }
 
-export const HIJRI_MONTH_NAMES: Record<number, { en: string; ar: string; so: string }> = {
-  1:  { en: "Muharram",    ar: "مُحَرَّم",     so: "Muharram" },
-  2:  { en: "Safar",       ar: "صَفَر",        so: "Safar" },
-  3:  { en: "Rabi al-Awwal", ar: "رَبِيع الأَوَّل", so: "Rabicul Awwal" },
-  4:  { en: "Rabi al-Thani", ar: "رَبِيع الثَّانِي", so: "Rabicul Labaad" },
-  5:  { en: "Jumada al-Ula", ar: "جُمَادَى الأُولَى", so: "Jumaadil Ula" },
-  6:  { en: "Jumada al-Akhira", ar: "جُمَادَى الآخِرَة", so: "Jumaadil Akhira" },
-  7:  { en: "Rajab",       ar: "رَجَب",         so: "Rajab" },
-  8:  { en: "Sha'ban",     ar: "شَعْبَان",       so: "Sha'baan" },
-  9:  { en: "Ramadan",     ar: "رَمَضَان",       so: "Ramadaan" },
-  10: { en: "Shawwal",     ar: "شَوَّال",        so: "Shawwaal" },
-  11: { en: "Dhu al-Qada", ar: "ذُو الْقَعْدَة",  so: "Dhul Qacda" },
-  12: { en: "Dhu al-Hijja", ar: "ذُو الْحِجَّة",  so: "Dhul Xijja" },
+export const HIJRI_MONTH_NAMES: Record<number, { en: string; ar: string; so: string; isSacred: boolean }> = {
+  1:  { en: "Muharram",    ar: "مُحَرَّم",     so: "Muxaram",         isSacred: true },
+  2:  { en: "Safar",       ar: "صَفَر",        so: "Safar",           isSacred: false },
+  3:  { en: "Rabi' al-Awwal", ar: "رَبِيع ٱلْأَوَّل", so: "Rabiic-al-Awal",    isSacred: false },
+  4:  { en: "Rabi' al-Thani", ar: "رَبِيع ٱلثَّانِي", so: "Rabiic-al-Thani",  isSacred: false },
+  5:  { en: "Jumada al-Ula", ar: "جُمَادَىٰ ٱلْأُولَىٰ", so: "Jumaadal-Ula",      isSacred: false },
+  6:  { en: "Jumada al-Akhirah", ar: "جُمَادَىٰ ٱلْآخِرَة", so: "Jumaadal-Akhirah", isSacred: false },
+  7:  { en: "Rajab",       ar: "رَجَب",         so: "Rajab",           isSacred: true },
+  8:  { en: "Sha'ban",     ar: "شَعْبَان",       so: "Shacbaan",        isSacred: false },
+  9:  { en: "Ramadan",     ar: "رَمَضَان",       so: "Ramadaan",        isSacred: false },
+  10: { en: "Shawwal",     ar: "شَوَّال",        so: "Shawal",          isSacred: false },
+  11: { en: "Dhul Qa'dah", ar: "ذُو ٱلْقَعْدَة",  so: "Dul-Qacdah",      isSacred: true },
+  12: { en: "Dhul Hijjah", ar: "ذُو ٱلْحِجَّة",  so: "Dul-Xijjah",      isSacred: true },
 };
 
 export const ISLAMIC_EVENTS: IslamicEvent[] = [
@@ -105,6 +106,7 @@ function jdToHijri(jd: number): HijriDate {
     monthName: monthData.en,
     monthNameArabic: monthData.ar,
     monthNameSomali: monthData.so,
+    isSacred: monthData.isSacred,
   };
 }
 

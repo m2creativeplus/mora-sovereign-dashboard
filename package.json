@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "verify-routes": "node scripts/verify-routes.js",
+    "prepush": "npm run build && npm run verify-routes",
+    "ship": "node scripts/ship.js"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.3.5",

@@ -23,10 +23,29 @@ export interface PrayerEntry {
   key: keyof PrayerTimes;
 }
 
-const HARGEISA = {
-  lat: 9.5596,
-  lng: 44.0650,
-  timezone: 3, // EAT = UTC+3
+export interface SomalilandCity {
+  key: string;
+  name: string;
+  nameArabic: string;
+  nameSomali: string;
+  lat: number;
+  lng: number;
+  elevation: number;
+  timezone: number;
+}
+
+export const SOMALILAND_CITIES: Record<string, SomalilandCity> = {
+  hargeisa: { key: "hargeisa", name: "Hargeisa", nameArabic: "هرجيسا", nameSomali: "Hargeysa", lat: 9.5596, lng: 44.0650, elevation: 1334, timezone: 3 },
+  berbera: { key: "berbera", name: "Berbera", nameArabic: "بربرة", nameSomali: "Berbera", lat: 10.4300, lng: 45.0100, elevation: 0, timezone: 3 },
+  burco: { key: "burco", name: "Burco", nameArabic: "برعو", nameSomali: "Burco", lat: 9.5200, lng: 45.5300, elevation: 1030, timezone: 3 },
+  borama: { key: "borama", name: "Borama", nameArabic: "بوراما", nameSomali: "Boorama", lat: 9.9400, lng: 43.1800, elevation: 1400, timezone: 3 },
+  ceerigaabo: { key: "ceerigaabo", name: "Ceerigaabo", nameArabic: "إيريجافو", nameSomali: "Ceerigaabo", lat: 10.6100, lng: 47.3700, elevation: 1800, timezone: 3 },
+  laascaanood: { key: "laascaanood", name: "Laascaanood", nameArabic: "لاس عانود", nameSomali: "Laascaanood", lat: 8.4800, lng: 47.3600, elevation: 1040, timezone: 3 },
+  gabiley: { key: "gabiley", name: "Gabiley", nameArabic: "غابيلي", nameSomali: "Gabiley", lat: 9.7000, lng: 43.6200, elevation: 1450, timezone: 3 },
+  sheikh: { key: "sheikh", name: "Sheikh", nameArabic: "شخ", nameSomali: "Sheekh", lat: 9.9300, lng: 45.1900, elevation: 1430, timezone: 3 },
+  oodweyne: { key: "oodweyne", name: "Oodweyne", nameArabic: "أودوين", nameSomali: "Oodweyne", lat: 9.4100, lng: 45.0600, elevation: 1000, timezone: 3 },
+  saylac: { key: "saylac", name: "Saylac", nameArabic: "زيلع", nameSomali: "Saylac", lat: 11.3500, lng: 43.4700, elevation: 0, timezone: 3 },
+  togwajaale: { key: "togwajaale", name: "Tog Wajaale", nameArabic: "توج واجالي", nameSomali: "Tog Wajaale", lat: 9.6000, lng: 43.3300, elevation: 1460, timezone: 3 },
 };
 
 function toRad(deg: number): number {
@@ -68,9 +87,8 @@ function dateToJD(date: Date): number {
     Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
 }
 
-function computePrayerTime(jd: number, angle: number, direction: "rise" | "set" = "rise"): number {
+function computePrayerTime(jd: number, angle: number, lat: number, lng: number, direction: "rise" | "set" = "rise"): number {
   const { decl, eqt } = computeSunPosition(jd);
-  const lat = HARGEISA.lat;
 
   const cosHour = (Math.cos(toRad(angle)) - Math.sin(toRad(decl)) * Math.sin(toRad(lat))) /
     (Math.cos(toRad(decl)) * Math.cos(toRad(lat)));
@@ -79,53 +97,62 @@ function computePrayerTime(jd: number, angle: number, direction: "rise" | "set" 
   if (cosHour > 1) return 0;  // Always below
 
   const T = toDeg(Math.acos(cosHour)) / 15;
-  return 12 - eqt + (direction === "rise" ? -T : T) + HARGEISA.lng / 15;
+  return 12 - eqt + (direction === "rise" ? -T : T) + lng / 15;
 }
 
-function computeAsr(jd: number, factor: number): number {
+function computeAsr(jd: number, factor: number, lat: number, lng: number): number {
   const { decl, eqt } = computeSunPosition(jd);
-  const lat = HARGEISA.lat;
   const z = toDeg(Math.atan(1 / (factor + Math.tan(toRad(Math.abs(lat - decl))))));
   const cosHour = (Math.sin(toRad(z)) - Math.sin(toRad(decl)) * Math.sin(toRad(lat))) /
     (Math.cos(toRad(decl)) * Math.cos(toRad(lat)));
   const T = toDeg(Math.acos(cosHour)) / 15;
-  return 12 - eqt + T + HARGEISA.lng / 15;
-}
-
-function hourToTime(hour: number): string {
-  const adjusted = fixHour(hour - HARGEISA.timezone + 3); // Already UTC+3 for Hargeisa
-  const h = Math.floor(adjusted);
-  const m = Math.round((adjusted - h) * 60);
-  const hDisplay = h % 12 === 0 ? 12 : h % 12;
-  const ampm = h < 12 || h === 24 ? "AM" : "PM";
-  return `${hDisplay}:${m.toString().padStart(2, "0")} ${ampm}`;
+  return 12 - eqt + T + lng / 15;
 }
 
 /**
- * Calculate prayer times for Hargeisa for a given date
+ * Calculate prayer times for a given city and date
  * Uses MWL angles: Fajr 18°, Isha 17°
  */
-export function calculatePrayerTimes(date: Date = new Date()): PrayerTimes {
+export function calculatePrayerTimes(date: Date = new Date(), cityKey: string = "hargeisa"): PrayerTimes {
+  const city = SOMALILAND_CITIES[cityKey.toLowerCase()] || SOMALILAND_CITIES.hargeisa;
   const jd = dateToJD(date);
   const { eqt } = computeSunPosition(jd);
 
-  const dhuhrTime = 12 - eqt + HARGEISA.lng / 15;
+  const lat = city.lat;
+  const lng = city.lng;
+  const elevation = city.elevation;
+  const timezone = city.timezone;
+
+  const dhuhrTime = 12 - eqt + lng / 15;
+
+  // High elevation sunset/sunrise drop correction
+  const horizonCorrection = 0.0347 * Math.sqrt(elevation);
+  const sunAngle = -0.833 - horizonCorrection;
+
+  const hourToTimeLocal = (hour: number): string => {
+    const adjusted = fixHour(hour - timezone + 3); // Adjusted local time
+    const h = Math.floor(adjusted);
+    const m = Math.round((adjusted - h) * 60);
+    const hDisplay = h % 12 === 0 ? 12 : h % 12;
+    const ampm = h < 12 || h === 24 ? "AM" : "PM";
+    return `${hDisplay}:${m.toString().padStart(2, "0")} ${ampm}`;
+  };
 
   return {
-    fajr: hourToTime(computePrayerTime(jd, -18, "rise")),       // MWL: 18°
-    sunrise: hourToTime(computePrayerTime(jd, -0.833, "rise")),  // Standard sunrise
-    dhuhr: hourToTime(dhuhrTime + 1/60),                         // Dhuhr = solar noon + 1min
-    asr: hourToTime(computeAsr(jd, 1)),                          // Shafi'i standard
-    maghrib: hourToTime(computePrayerTime(jd, -0.833, "set")),   // Sunset
-    isha: hourToTime(computePrayerTime(jd, -17, "set")),         // MWL: 17°
+    fajr: hourToTimeLocal(computePrayerTime(jd, -18, lat, lng, "rise")),       // MWL: 18°
+    sunrise: hourToTimeLocal(computePrayerTime(jd, sunAngle, lat, lng, "rise")),  // Standard adjusted sunrise
+    dhuhr: hourToTimeLocal(dhuhrTime + 1/60),                        // Dhuhr = solar noon + 1min
+    asr: hourToTimeLocal(computeAsr(jd, 1, lat, lng)),                         // Shafi'i standard
+    maghrib: hourToTimeLocal(computePrayerTime(jd, sunAngle, lat, lng, "set")),   // Standard adjusted sunset
+    isha: hourToTimeLocal(computePrayerTime(jd, -17, lat, lng, "set")),         // MWL: 17°
   };
 }
 
 /**
  * Get prayer entries with names in 3 languages
  */
-export function getPrayerEntries(date: Date = new Date()): PrayerEntry[] {
-  const times = calculatePrayerTimes(date);
+export function getPrayerEntries(date: Date = new Date(), cityKey: string = "hargeisa"): PrayerEntry[] {
+  const times = calculatePrayerTimes(date, cityKey);
   return [
     { name: "Fajr",    nameArabic: "الفجر",    nameSomali: "Subax",    time: times.fajr,    key: "fajr" },
     { name: "Sunrise", nameArabic: "الشروق",    nameSomali: "Qorrax",   time: times.sunrise, key: "sunrise" },

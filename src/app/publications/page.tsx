@@ -18,12 +18,23 @@ const TYPE_CONFIG: Record<string, { label: string; icon: React.ReactNode; badgeC
   hajj:     { label: "Hajj",     icon: <Plane size={14} />,     badgeClass: "bg-red-500/10 text-red-400 border-red-500/20" },
 };
 
+interface Publication {
+  _id: string;
+  type: string;
+  title: string;
+  titleArabic: string;
+  scholar: string;
+  date: string;
+  language: string;
+  downloads: number;
+}
+
 export default function PublicationsPage() {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("All");
   const publications = useQuery(api.publications.getAll);
 
-  const filtered = publications ? publications.filter((p: any) => {
+  const filtered = publications ? publications.filter((p: Publication) => {
     const matchType = typeFilter === "All" || p.type === typeFilter;
     const matchSearch = p.title.toLowerCase().includes(search.toLowerCase()) ||
       p.scholar.toLowerCase().includes(search.toLowerCase());

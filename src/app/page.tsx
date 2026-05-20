@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import { calculatePrayerTimes, getPrayerEntries, getCurrentPrayer } from "@/lib/prayer-times";
-import { getCurrentHijriDate, formatHijriDate, formatHijriDateArabic, gregorianToHijri } from "@/lib/hijri";
+import { formatHijriDate, formatHijriDateArabic, gregorianToHijri } from "@/lib/hijri";
 import { MORA_STATS, REGIONS, HAJJ_STATS } from "@/lib/data";
 import {
   Building2, MapPin, Users, Plane, Volume2, Moon, BarChart3,
-  TrendingUp, AlertCircle, CheckCircle, Clock, Megaphone, Globe,
+  AlertCircle, CheckCircle, Clock, Megaphone, Globe,
   ChevronLeft, ChevronRight, CalendarDays, Undo2
 } from "lucide-react";
 import { useQuery } from "convex/react";
@@ -24,27 +24,68 @@ import SomalilandEmblem from "@/components/SomalilandEmblem";
 import SomalilandFlag from "@/components/SomalilandFlag";
 import { PulsingAtoms } from "@/components/ui/PulsingAtoms";
 import QiblaCompass from "@/components/QiblaCompass";
+import HeroSection from "@/components/HeroSection";
+import PrayerCard from "@/components/PrayerCard";
+import MoraFooter from "@/components/MoraFooter";
 
+
+interface Announcement {
+  _id: string;
+  urgent: boolean;
+  type: string;
+  title: string;
+  content: string;
+  date: string;
+  channels: string[];
+}
+
+interface Mosque {
+  _id: string;
+  name: string;
+  region: string;
+  district: string;
+  capacity: number;
+  waqf: boolean;
+  status: string;
+}
 
 export default function OverviewPage() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [prayerTimes, setPrayerTimes] = useState(calculatePrayerTimes(selectedDate));
-  const [activePrayer, setActivePrayer] = useState<string>("fajr");
+
+  // Derived state (no useState needed, eliminating cascading state updates entirely!)
+  const isSelectedToday = selectedDate.toDateString() === currentTime.toDateString();
+  const activePrayer = isSelectedToday ? getCurrentPrayer(calculatePrayerTimes(currentTime)) : "";
 
   // Adhan notification toggles state
   const [adhanAlerts, setAdhanAlerts] = useState<Record<string, boolean>>({});
   const [lastNotified, setLastNotified] = useState<string>("");
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission | "not_supported">("default");
 
   const announcements = useQuery(api.announcements.getAll);
   const mosques = useQuery(api.mosques.getAll);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      setTimeout(() => {
+        setNotificationPermission(Notification.permission);
+      }, 0);
+    } else {
+      setTimeout(() => {
+        setNotificationPermission("not_supported");
+      }, 0);
+    }
+  }, []);
 
   useEffect(() => {
     // Load enabled adhan alarms from localStorage
     const saved = localStorage.getItem("adhanAlerts");
     if (saved) {
       try {
-        setAdhanAlerts(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        setTimeout(() => {
+          setAdhanAlerts(parsed);
+        }, 0);
       } catch (e) {
         console.error("Failed to parse adhan alerts:", e);
       }
@@ -67,14 +108,6 @@ export default function OverviewPage() {
       const now = new Date();
       setCurrentTime(now);
       
-      // If selectedDate is today, keep updating the prayer schedule live
-      const isSelectedToday = selectedDate.toDateString() === now.toDateString();
-      if (isSelectedToday) {
-        const times = calculatePrayerTimes(now);
-        setPrayerTimes(times);
-        setActivePrayer(getCurrentPrayer(times));
-      }
-
       // Check for Adhan notification triggers on the active live prayer times
       const liveTimes = calculatePrayerTimes(now);
       const activePr = getCurrentPrayer(liveTimes);
@@ -84,7 +117,7 @@ export default function OverviewPage() {
         const [timePart, period] = currentPrayerTime.split(" ");
         const [hStr, mStr] = timePart.split(":");
         let h = Number(hStr);
-        let m = Number(mStr);
+        const m = Number(mStr);
         if (period === "PM" && h !== 12) h += 12;
         if (period === "AM" && h === 12) h = 0;
 
@@ -106,39 +139,19 @@ export default function OverviewPage() {
         }
       }
     }, 10000); // Poll every 10 seconds to catch the exact minute match
-
-    const isSelectedToday = selectedDate.toDateString() === new Date().toDateString();
-    if (isSelectedToday) {
-      setActivePrayer(getCurrentPrayer(prayerTimes));
-    } else {
-      setActivePrayer(""); // Clear current highlight for navigated dates
-    }
     
     return () => clearInterval(timer);
-  }, [selectedDate, adhanAlerts, lastNotified, prayerTimes]);
+  }, [selectedDate, adhanAlerts, lastNotified]);
 
   const navigateDate = (days: number) => {
     const nextDate = new Date(selectedDate);
     nextDate.setDate(selectedDate.getDate() + days);
     setSelectedDate(nextDate);
-    
-    const times = calculatePrayerTimes(nextDate);
-    setPrayerTimes(times);
-    
-    const isToday = nextDate.toDateString() === new Date().toDateString();
-    if (isToday) {
-      setActivePrayer(getCurrentPrayer(times));
-    } else {
-      setActivePrayer("");
-    }
   };
 
   const resetToToday = () => {
     const today = new Date();
     setSelectedDate(today);
-    const times = calculatePrayerTimes(today);
-    setPrayerTimes(times);
-    setActivePrayer(getCurrentPrayer(times));
   };
 
   const hijri = gregorianToHijri(selectedDate);
@@ -201,6 +214,9 @@ export default function OverviewPage() {
         {/* Main Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
 
+          {/* Hero Banner with Live Countdown */}
+          <HeroSection />
+
           {/* KPI Stats Row */}
           <div className="grid grid-cols-4 gap-4">
             {(Object.keys(MORA_STATS) as Array<keyof typeof MORA_STATS>).map((key) => {
@@ -247,43 +263,17 @@ export default function OverviewPage() {
                 </Badge>
               </div>
               <div className="grid grid-cols-3 gap-3">
-                {prayers.filter(p => p.key !== "sunrise").map((prayer) => {
-                  const isAdhanEnabled = adhanAlerts[prayer.key] || false;
-                  return (
-                    <div
-                      key={prayer.key}
-                      className={`prayer-card relative ${activePrayer === prayer.key ? "active-prayer" : ""}`}
-                    >
-                      {/* Adhan Toggle Bell */}
-                      <button
-                        onClick={() => toggleAdhan(prayer.key)}
-                        className={`absolute top-2.5 right-2.5 p-1 rounded-full border transition-all ${
-                          isAdhanEnabled
-                            ? "bg-gold/10 border-gold/30 text-gold shadow-md"
-                            : "bg-white/2 border-white/5 text-zinc-500 hover:text-zinc-300"
-                        }`}
-                        title={isAdhanEnabled ? "Disable Adhan Browser Notification" : "Enable Adhan Browser Notification"}
-                      >
-                        <Volume2 size={11} className={isAdhanEnabled ? "animate-pulse" : ""} />
-                      </button>
-
-                      <p className="font-arabic text-sm font-semibold" style={{ color: activePrayer === prayer.key ? "#D4AF37" : "rgba(232,237,233,0.6)", direction: "rtl", marginBottom: "4px" }}>
-                        {prayer.nameArabic}
-                      </p>
-                      <p className="font-outfit font-bold text-lg" style={{ color: activePrayer === prayer.key ? "#D4AF37" : "#E8EDE9" }}>
-                        {prayer.time}
-                      </p>
-                      <p className="text-xs mt-1" style={{ color: "rgba(232,237,233,0.4)" }}>
-                        {prayer.nameSomali}
-                      </p>
-                      {activePrayer === prayer.key && (
-                        <Badge className="mt-2 w-full justify-center bg-gold/10 text-gold border-gold/20 text-[9px] font-bold">
-                          CURRENT
-                        </Badge>
-                      )}
-                    </div>
-                  );
-                })}
+                {prayers.map((prayer, index) => (
+                  <PrayerCard
+                    key={prayer.key}
+                    prayer={prayer}
+                    index={index}
+                    isActive={activePrayer === prayer.key}
+                    adhanEnabled={adhanAlerts[prayer.key] || false}
+                    notificationPermission={notificationPermission}
+                    onToggleAdhan={toggleAdhan}
+                  />
+                ))}
               </div>
               <p className="text-xs mt-3 text-muted-foreground opacity-60">
                 Method: Muslim World League (MWL) · Coordinates: 9.5596°N, 44.0650°E · EAT (UTC+3)
@@ -393,7 +383,7 @@ export default function OverviewPage() {
                 </Button>
               </div>
               <div className="space-y-3">
-                {announcements && announcements.slice(0, 3).map((ann: any) => (
+                {announcements && announcements.slice(0, 3).map((ann: Announcement) => (
                   <div key={ann._id} className="announcement-card">
                     <div className="flex items-start gap-3">
                       <div className="flex-shrink-0 mt-0.5">
@@ -416,7 +406,7 @@ export default function OverviewPage() {
                             <Clock size={10} /> {ann.date}
                           </span>
                           <div className="flex gap-1">
-                            {ann.channels.map((ch: any) => (
+                            {ann.channels.map((ch: string) => (
                               <Badge key={ch} className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[9px] font-semibold">
                                 {ch}
                               </Badge>
@@ -492,7 +482,7 @@ export default function OverviewPage() {
                 </Button>
               </div>
               <div className="space-y-2">
-                {mosques && mosques.slice(0, 5).map((mosque: any) => (
+                {mosques && mosques.slice(0, 5).map((mosque: Mosque) => (
                   <div key={mosque._id} className="mosque-card flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-emerald-950/20">
                       <Building2 size={14} className="text-emerald-400" />
@@ -571,18 +561,8 @@ export default function OverviewPage() {
             </Card>
           </div>
 
-          {/* Footer */}
-          <div className="flex items-center justify-between py-2 px-1">
-            <p className="text-xs" style={{ color: "rgba(232,237,233,0.2)" }}>
-              DEMO PLATFORM · All data is illustrative · Built by M2 Creative & Consulting
-            </p>
-            <div className="flex items-center gap-4">
-              <p className="text-xs" style={{ color: "rgba(232,237,233,0.2)" }}>
-                MORA Sovereign Platform v1.0
-              </p>
-              <TrendingUp size={12} style={{ color: "rgba(212,175,55,0.3)" }} />
-            </div>
-          </div>
+          {/* Institutional Footer */}
+          <MoraFooter />
 
         </div>
       </main>

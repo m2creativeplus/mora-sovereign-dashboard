@@ -2,16 +2,14 @@
 
 import React, { useState, useMemo } from "react";
 import Sidebar from "@/components/Sidebar";
-import SomalilandEmblem from "@/components/SomalilandEmblem";
 import SomalilandFlag from "@/components/SomalilandFlag";
 import { PulsingAtoms } from "@/components/ui/PulsingAtoms";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { 
   MapPin, Landmark, Search, Plus, Filter, ShieldCheck, 
-  TrendingUp, CircleDollarSign, CalendarDays, ExternalLink 
+  ExternalLink 
 } from "lucide-react";
 
 // Robust static dataset for Somaliland Waqf Assets

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import { REGIONS } from "@/lib/data";
-import { Building2, Search, MapPin, Users, CheckCircle, AlertTriangle, Wrench, Filter } from "lucide-react";
+import { Building2, Search, MapPin, Users, Filter } from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 
@@ -15,17 +15,27 @@ import { Progress } from "@/components/ui/progress";
 import { StatusIndicator } from "@/components/ui/StatusIndicator";
 import { cn } from "@/lib/utils";
 
-const REGION_FILTERS = ["All", ...REGIONS.map(r => r.name)];
 const STATUS_FILTERS = ["All", "Operational", "Renovation", "Needs Repair"];
+
+interface Mosque {
+  _id: string;
+  name: string;
+  region: string;
+  district: string;
+  capacity: number;
+  waqf: boolean;
+  status: string;
+  imam: string;
+}
 
 export default function MosquesPage() {
   const [regionFilter, setRegionFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
   const [search, setSearch] = useState("");
   const mosques = useQuery(api.mosques.getAll);
-  const [selected, setSelected] = useState<any | null>(null);
+  const [selected, setSelected] = useState<Mosque | null>(null);
 
-  const filtered = mosques ? mosques.filter((m: any) => {
+  const filtered = mosques ? mosques.filter((m: Mosque) => {
     const matchRegion = regionFilter === "All" || m.region === regionFilter;
     const matchStatus = statusFilter === "All" || m.status === statusFilter;
     const matchSearch = m.name.toLowerCase().includes(search.toLowerCase()) ||

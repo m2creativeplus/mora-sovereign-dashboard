@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
 import {
   getCurrentHijriDate,
@@ -17,8 +18,8 @@ import { Moon, ChevronLeft, ChevronRight, Star, AlertCircle, Calendar } from "lu
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { StatusIndicator } from "@/components/ui/StatusIndicator";
 import { cn } from "@/lib/utils";
+import MoraFooter from "@/components/MoraFooter";
 
 export default function CalendarPage() {
   const today = getCurrentHijriDate();
@@ -69,14 +70,19 @@ export default function CalendarPage() {
             <Moon size={18} className="text-gold" />
             <div>
               <h2 className="font-outfit font-bold text-sm text-gold tracking-widest">
-                HIJRI CALENDAR — ISLAMIC DATE AUTHORITY
+                TIRSIGA HIJRIGA QARANKA 1448 AH — ISLAMIC DATE AUTHORITY
               </h2>
-              <p className="text-xs text-foreground/40">
-                Official Somaliland Moon-Sighting & Calendar System
+              <p className="text-xs text-foreground/45 mt-0.5">
+                Somaliland National Hijri Calendar 1448 AH · Official Moon-Sighting & Calendar Authority
               </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <Link href="/calendar/monthly-prayers">
+              <Button size="sm" variant="outline" className="text-xs font-semibold text-gold bg-gold/5 border-gold/12 hover:bg-gold/10 hover:border-gold/20 flex items-center gap-1.5 h-8">
+                <Calendar size={13} /> Monthly Prayers
+              </Button>
+            </Link>
             <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-md text-xs">
               <span className="relative flex h-1.5 w-1.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -184,7 +190,7 @@ export default function CalendarPage() {
               <Card className="glass-card border-white/5 bg-white/3 p-5">
                 <h3 className="section-title mb-1 font-outfit font-bold text-sm text-foreground flex items-center gap-1.5">
                   <Moon size={14} className="text-gold" />
-                  Today's Prayers
+                  Today&apos;s Prayers
                 </h3>
                 <p className="text-xs text-foreground/45 mb-3">
                   Hargeisa · 9.5596°N, 44.0650°E
@@ -267,7 +273,7 @@ export default function CalendarPage() {
             <div className="section-header mb-4 flex items-center justify-between">
               <h3 className="section-title font-outfit font-bold text-sm text-foreground flex items-center gap-1.5">
                 <Calendar size={15} className="text-gold" />
-                Islamic Calendar Reference — 1446–1447 AH
+                Tirsiga Hijriga Qaranka — Somaliland National Hijri Calendar 1448 AH
               </h3>
               <Badge className="bg-gold/10 text-gold border-gold/20 text-xs font-semibold">Official MORA Reference</Badge>
             </div>
@@ -302,6 +308,9 @@ export default function CalendarPage() {
               })}
             </div>
           </Card>
+          
+          {/* Institutional Footer */}
+          <MoraFooter />
         </div>
       </main>
     </div>
