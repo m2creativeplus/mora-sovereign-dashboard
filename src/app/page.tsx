@@ -19,6 +19,9 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { StatusIndicator } from "@/components/ui/StatusIndicator";
 import { cn } from "@/lib/utils";
+import SomalilandEmblem from "@/components/SomalilandEmblem";
+import SomalilandFlag from "@/components/SomalilandFlag";
+import { PulsingAtoms } from "@/components/ui/PulsingAtoms";
 
 
 export default function OverviewPage() {
@@ -52,19 +55,27 @@ export default function OverviewPage() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-geometric" style={{ background: "var(--background)" }}>
+    <div className="flex h-screen overflow-hidden bg-geometric relative" style={{ background: "var(--background)" }}>
+      {/* Premium Ambient Background Motion */}
+      <PulsingAtoms />
+
       <Sidebar />
 
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden z-10">
         {/* Header */}
-        <header className="flex-shrink-0 flex items-center justify-between px-8 h-16 border-b" style={{ borderColor: "rgba(26,92,42,0.2)", background: "rgba(8,11,8,0.95)", backdropFilter: "blur(20px)" }}>
-          <div>
-            <h2 className="font-outfit font-bold text-sm" style={{ color: "#D4AF37", letterSpacing: "0.08em" }}>
-              REPUBLIC OF SOMALILAND — MINISTRY OF RELIGIOUS AFFAIRS & ENDOWMENTS
-            </h2>
-            <p className="text-xs mt-0.5" style={{ color: "rgba(232,237,233,0.4)" }}>
-              Sovereign Intelligence Dashboard · Hargeisa, Somaliland
-            </p>
+        <header className="flex-shrink-0 flex items-center justify-between px-8 h-16 border-b z-10" style={{ borderColor: "rgba(26,92,42,0.2)", background: "rgba(8,11,8,0.95)", backdropFilter: "blur(20px)" }}>
+          <div className="flex items-center gap-3">
+            <SomalilandEmblem size={34} className="drop-shadow-[0_0_8px_rgba(212,175,55,0.3)] flex-shrink-0" />
+            <div>
+              <h2 className="font-outfit font-bold text-sm" style={{ color: "#D4AF37", letterSpacing: "0.08em" }}>
+                REPUBLIC OF SOMALILAND — MINISTRY OF RELIGIOUS AFFAIRS & ENDOWMENTS
+              </h2>
+              <p className="text-xs mt-0.5 flex items-center gap-1.5" style={{ color: "rgba(232,237,233,0.4)" }}>
+                Sovereign Intelligence Dashboard · Hargeisa, Somaliland
+                <span className="opacity-30">|</span>
+                <SomalilandFlag width={20} height={13} className="inline-block rounded-[1px] border border-white/5 shadow-sm" />
+              </p>
+            </div>
           </div>
 
           <div className="flex items-center gap-6">

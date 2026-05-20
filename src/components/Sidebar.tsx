@@ -15,6 +15,8 @@ import {
   Shield,
   FileText,
 } from "lucide-react";
+import SomalilandEmblem from "./SomalilandEmblem";
+import SomalilandFlag from "./SomalilandFlag";
 
 interface NavItem {
   label: string;
@@ -45,10 +47,9 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="p-5 border-b" style={{ borderColor: "rgba(26,92,42,0.2)" }}>
         <div className="flex items-center gap-3 mb-3">
-          {/* MORA Emblem */}
-          <div className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center"
-            style={{ background: "rgba(26,92,42,0.25)", border: "1px solid rgba(26,92,42,0.4)" }}>
-            <Moon size={18} style={{ color: "#D4AF37" }} />
+          {/* Official Somaliland Coat of Arms Emblem */}
+          <div className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center bg-zinc-950 border border-[rgba(212,175,55,0.3)] shadow-[0_0_15px_rgba(212,175,55,0.15)]">
+            <SomalilandEmblem size={30} className="drop-shadow-[0_0_8px_rgba(212,175,55,0.4)]" />
           </div>
           <div>
             <h1 className="font-outfit font-bold text-sm leading-tight" style={{ color: "#E8EDE9" }}>
@@ -101,11 +102,15 @@ export default function Sidebar() {
 
       {/* Footer */}
       <div className="p-4 border-t" style={{ borderColor: "rgba(26,92,42,0.2)" }}>
-        <Link href="/settings" className="nav-item">
-          <Settings size={16} style={{ color: "rgba(232,237,233,0.3)" }} />
-          <span style={{ fontSize: "0.8rem", color: "rgba(232,237,233,0.4)" }}>Settings</span>
-        </Link>
-        <div className="mt-3 px-2">
+        <div className="flex items-center justify-between mb-3 px-2">
+          <Link href="/settings" className="flex items-center gap-2 text-zinc-400 hover:text-gold transition-colors">
+            <Settings size={15} />
+            <span style={{ fontSize: "0.78rem" }}>Settings</span>
+          </Link>
+          <SomalilandFlag width={38} height={24} className="border border-white/5" />
+        </div>
+        
+        <div className="mt-2 px-2">
           <div className="flex items-center gap-2 mb-1">
             <Shield size={12} style={{ color: "#D4AF37" }} />
             <span style={{ fontSize: "0.65rem", color: "rgba(212,175,55,0.6)", letterSpacing: "0.06em", fontWeight: 600 }}>
