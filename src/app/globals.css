@@ -1,0 +1,416 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;600;700;800&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap');
+
+/* ═══════════════════════════════════════════════════════
+   MORA SOVEREIGN DESIGN SYSTEM
+   Republic of Somaliland — Ministry of Religious Affairs
+   ═══════════════════════════════════════════════════════ */
+
+@theme {
+  --color-gold: #D4AF37;
+  --color-gold-light: #F9E29C;
+  --color-gold-dim: rgba(212, 175, 55, 0.15);
+  --color-mora-green: #1A5C2A;
+  --color-mora-green-light: #2A7A3E;
+  --color-mora-green-dim: rgba(26, 92, 42, 0.2);
+  --color-void: #080B08;
+  --color-surface: #0F1410;
+  --color-surface-2: #141C15;
+  --color-glass: rgba(255, 255, 255, 0.04);
+  --color-glass-2: rgba(255, 255, 255, 0.07);
+  --color-glass-border: rgba(255, 255, 255, 0.08);
+  --color-glass-border-gold: rgba(212, 175, 55, 0.2);
+  --color-glass-border-green: rgba(26, 92, 42, 0.3);
+  --font-inter: 'Inter', sans-serif;
+  --font-outfit: 'Outfit', sans-serif;
+  --font-arabic: 'Noto Naskh Arabic', serif;
+}
+
+:root {
+  --background: #080B08;
+  --foreground: #E8EDE9;
+  --gold: #D4AF37;
+  --mora-green: #1A5C2A;
+  --sidebar-width: 260px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── ISLAMIC GEOMETRIC BACKGROUND PATTERN ── */
+.bg-geometric {
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(26, 92, 42, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 60% 80%, rgba(26, 92, 42, 0.05) 0%, transparent 40%);
+}
+
+/* ── GLASSMORPHISM VARIANTS ── */
+.glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+}
+
+.glass-green {
+  background: rgba(26, 92, 42, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(26, 92, 42, 0.25);
+  border-radius: 12px;
+}
+
+.glass-gold {
+  background: rgba(212, 175, 55, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 12px;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(212, 175, 55, 0.2);
+}
+
+/* ── TYPOGRAPHY ── */
+.font-arabic {
+  font-family: 'Noto Naskh Arabic', serif;
+  direction: rtl;
+}
+
+.font-inter {
+  font-family: 'Inter', sans-serif;
+}
+
+.font-outfit {
+  font-family: 'Outfit', sans-serif;
+}
+
+/* ── GOLD TEXT GRADIENT ── */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #D4AF37 0%, #F9E29C 50%, #D4AF37 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-green-gradient {
+  background: linear-gradient(135deg, #1A5C2A 0%, #2A9A45 50%, #1A5C2A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── GOLD UNDERLINE ── */
+.gold-underline {
+  position: relative;
+}
+.gold-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #D4AF37, transparent);
+  border-radius: 2px;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: rgba(8, 11, 8, 0.95);
+  border-right: 1px solid rgba(26, 92, 42, 0.2);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
+  color: rgba(232, 237, 233, 0.5);
+  text-decoration: none;
+}
+
+.nav-item:hover {
+  background: rgba(212, 175, 55, 0.08);
+  color: #D4AF37;
+}
+
+.nav-item.active {
+  background: rgba(212, 175, 55, 0.12);
+  color: #D4AF37;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  font-weight: 600;
+}
+
+.nav-section-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(212, 175, 55, 0.4);
+  padding: 4px 12px;
+  margin-top: 8px;
+}
+
+/* ── STAT CARDS ── */
+.stat-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 20px;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.4), transparent);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.stat-card:hover::before {
+  opacity: 1;
+}
+
+.stat-card:hover {
+  border-color: rgba(212, 175, 55, 0.15);
+  transform: translateY(-1px);
+}
+
+/* ── BADGE VARIANTS ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.badge-green {
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.badge-gold {
+  background: rgba(212, 175, 55, 0.12);
+  color: #D4AF37;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.badge-blue {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.badge-red {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.badge-mora-green {
+  background: rgba(26, 92, 42, 0.2);
+  color: #4ade80;
+  border: 1px solid rgba(26, 92, 42, 0.3);
+}
+
+/* ── ANNOUNCEMENT CARD ── */
+.announcement-card {
+  border-left: 3px solid #D4AF37;
+  background: rgba(212, 175, 55, 0.04);
+  border-radius: 0 10px 10px 0;
+  padding: 14px 16px;
+  transition: background 0.2s ease;
+}
+
+.announcement-card:hover {
+  background: rgba(212, 175, 55, 0.07);
+}
+
+/* ── PRAYER TIME CARD ── */
+.prayer-card {
+  background: rgba(26, 92, 42, 0.1);
+  border: 1px solid rgba(26, 92, 42, 0.2);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.prayer-card.active-prayer {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+/* ── CUSTOM SCROLLBAR ── */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 175, 55, 0.5);
+}
+
+/* ── DIVIDER ── */
+.divider-gold {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.3), transparent);
+}
+
+/* ── SECTION HEADER ── */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #E8EDE9;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title::before {
+  content: '';
+  width: 3px;
+  height: 16px;
+  background: #D4AF37;
+  border-radius: 2px;
+}
+
+/* ── CALENDAR GRID ── */
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.calendar-day:hover {
+  background: rgba(212, 175, 55, 0.08);
+  border-color: rgba(212, 175, 55, 0.15);
+}
+
+.calendar-day.today {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: rgba(212, 175, 55, 0.4);
+  color: #D4AF37;
+  font-weight: 700;
+}
+
+.calendar-day.event {
+  background: rgba(26, 92, 42, 0.15);
+  border-color: rgba(26, 92, 42, 0.3);
+  color: #4ade80;
+}
+
+/* ── PULSE ANIMATION ── */
+@keyframes pulse-gold {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.pulse-gold {
+  animation: pulse-gold 2s ease-in-out infinite;
+}
+
+/* ── FADE IN ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+/* ── MOSQUE CARD ── */
+.mosque-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.2s ease;
+}
+
+.mosque-card:hover {
+  border-color: rgba(26, 92, 42, 0.3);
+  background: rgba(26, 92, 42, 0.06);
+}
+
+/* ── PROGRESS BAR ── */
+.progress-bar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1A5C2A, #D4AF37);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
