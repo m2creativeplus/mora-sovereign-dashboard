@@ -58,8 +58,12 @@ const ROUTES = [
   '/robots.txt'
 ];
 
-const PORT = 3000;
-const HOST = 'localhost';
+const args = process.argv.slice(2);
+const targetUrl = args[0] ? new URL(args[0]) : null;
+const HOST = targetUrl ? targetUrl.hostname : 'localhost';
+const PORT = targetUrl ? (targetUrl.port || (targetUrl.protocol === 'https:' ? 443 : 80)) : 3000;
+const PROTOCOL = targetUrl ? targetUrl.protocol : 'http:';
+const httpModule = PROTOCOL === 'https:' ? require('https') : require('http');
 
 function pingRoute(route) {
   return new Promise((resolve) => {
@@ -74,7 +78,7 @@ function pingRoute(route) {
       timeout: 15000
     };
 
-    const req = http.request(options, (res) => {
+    const req = httpModule.request(options, (res) => {
       resolve({
         route,
         status: res.statusCode,
@@ -119,9 +123,14 @@ async function runLiveVerification() {
       successCount++;
     } else {
       if (result.status === 'OFFLINE') {
-        console.log(`\n❌ ERROR: Dev server appears to be offline on port ${PORT}.`);
-        console.log(`💡 Run 'npm run dev' in another terminal first.`);
-        process.exit(1);
+        if (!targetUrl) {
+          console.log(`\n⚠️ WARNING: Dev server is offline on port ${PORT}. Skipping local live telemetry.`);
+          console.log(`💡 Run 'npm run dev' in another terminal to test local routes.`);
+          process.exit(0);
+        } else {
+          console.log(`\n❌ ERROR: Target host ${HOST} is offline.`);
+          process.exit(1);
+        }
       }
       console.log(`  🔴 [${result.status}] ${route} -> FAIL`);
       failCount++;

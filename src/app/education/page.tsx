@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import Sidebar from "@/components/Sidebar";
-import SomalilandEmblem from "@/components/SomalilandEmblem";
 import SomalilandFlag from "@/components/SomalilandFlag";
 import { PulsingAtoms } from "@/components/ui/PulsingAtoms";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,9 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Typography } from "@/components/ui/Typography";
 import { 
-  GraduationCap, Search, Plus, Award, MapPin, 
-  BookOpen, ShieldCheck, CheckCircle, FileCheck, 
-  Users, CheckCircle2, UserCheck2, RefreshCw
+  GraduationCap, Search, Award, MapPin, 
+  BookOpen, ShieldCheck, FileCheck, 
+  CheckCircle2, UserCheck2
 } from "lucide-react";
 
 // Robust dataset for Madrasas in the Republic of Somaliland

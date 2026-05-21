@@ -73,19 +73,7 @@ function gregorianToJD(year: number, month: number, day: number): number {
 }
 
 function jdToHijri(jd: number): HijriDate {
-  const z = Math.floor(jd) + 0.5;
-  const a = Math.floor((z - 1867216.25) / 36524.25);
-  const b = z + 1 + a - Math.floor(a / 4);
-  const c = b + 1524;
-  const d = Math.floor((c - 122.1) / 365.25);
-  const e = Math.floor(365.25 * d);
-  const f = Math.floor((c - e) / 30.6001);
-
-  const day = c - e - Math.floor(30.6001 * f);
-  const month = f < 14 ? f - 1 : f - 13;
-  const year = month > 2 ? d - 4716 : d - 4715;
-
-  // Julian day number to Hijri
+  // Julian day number to Hijri using the tabular algorithm
   const k = Math.floor(jd) - 1948440 + 10632;
   const n = Math.floor((k - 1) / 10631);
   const kk = k - 10631 * n + 354;
@@ -96,6 +84,7 @@ function jdToHijri(jd: number): HijriDate {
   const hMonth = Math.floor((24 * kk2) / 709);
   const hDay = kk2 - Math.floor((709 * hMonth) / 24);
   const hYear = 30 * n + j - 30;
+
 
   const monthData = HIJRI_MONTH_NAMES[hMonth] || HIJRI_MONTH_NAMES[1];
 

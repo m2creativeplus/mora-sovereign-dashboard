@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 const { execSync } = require('child_process');
-const http = require('http');
 const https = require('https');
 
 console.log("==================================================================");

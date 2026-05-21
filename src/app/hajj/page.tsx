@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import Sidebar from "@/components/Sidebar";
-import SomalilandEmblem from "@/components/SomalilandEmblem";
 import SomalilandFlag from "@/components/SomalilandFlag";
 import { PulsingAtoms } from "@/components/ui/PulsingAtoms";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,8 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { 
-  Plane, PlaneTakeoff, ShieldCheck, Search, Send, UserCheck, 
-  MapPin, CheckCircle, Clock, AlertTriangle, Building, SendToBack
+  PlaneTakeoff, ShieldCheck, Search, Send, UserCheck, 
+  CheckCircle, Building, SendToBack
 } from "lucide-react";
 
 // Mock Pilgrims registry data matching Republic of Somaliland regions
